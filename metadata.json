@@ -1,0 +1,5 @@
+{
+  "name": "Chickasaw Seatbelt Generator",
+  "description": "Convert transcripts into structured content profiles with HTML descriptions, SEO metadata, and summaries using custom AI prompts.",
+  "requestFramePermissions": []
+}
