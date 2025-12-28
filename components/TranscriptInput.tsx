@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Upload, Type, X, File as FileIcon } from 'lucide-react';
-import { TabType } from '../types';
+import { TabType } from '../types.ts';
 
 interface TranscriptInputProps {
   value: string;

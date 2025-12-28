@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Header } from './components/Header';
-import { TranscriptInput } from './components/TranscriptInput';
-import { PromptConfig } from './components/PromptConfig';
-import { ContextInput } from './components/ContextInput';
-import { ResultDisplay } from './components/ResultDisplay';
-import { generateDocumentStream } from './services/geminiService';
-import { DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT } from './types';
+import { Header } from './components/Header.tsx';
+import { TranscriptInput } from './components/TranscriptInput.tsx';
+import { PromptConfig } from './components/PromptConfig.tsx';
+import { ContextInput } from './components/ContextInput.tsx';
+import { ResultDisplay } from './components/ResultDisplay.tsx';
+import { generateDocumentStream } from './services/geminiService.ts';
+import { DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT } from './types.ts';
 import { Play } from 'lucide-react';
 
 const App: React.FC = () => {

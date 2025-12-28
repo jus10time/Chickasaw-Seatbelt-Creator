@@ -1,9 +1,11 @@
 import { GoogleGenAI } from "@google/genai";
 
 const getAiClient = () => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    throw new Error("API Key is missing. Please check your environment variables.");
+  // logic handled by vite.config.ts define
+  const apiKey = process.env.API_KEY; 
+  
+  if (!apiKey || apiKey.includes("PASTE_YOUR_")) {
+    throw new Error("API Key is missing. If you are running locally, check your .env file. If you are deployed, check your Environment Variables configuration.");
   }
   return new GoogleGenAI({ apiKey });
 };
@@ -29,6 +31,7 @@ export const generateDocumentStream = async (
   if (fullContent.includes('{{TRANSCRIPT}}')) {
     fullContent = fullContent.replace('{{TRANSCRIPT}}', transcript);
   } else {
+    // If user deleted the placeholder, append it intelligently
     fullContent = `Here is the raw video transcript content:
 
 <transcript_content>
@@ -42,30 +45,20 @@ ${fullContent}`;
   if (fullContent.includes('{{CONTEXT}}')) {
     fullContent = fullContent.replace('{{CONTEXT}}', contextBlock);
   } else {
-    // If no placeholder, insert it right after the transcript block (conceptually)
-    // or simply append it before the logic checks if possible. 
-    // To be safe and effective, we add it right after the transcript content in our constructed string
-    // OR if we already did string replacement, we just prepend it to the Logic Check section if we can find it, 
-    // otherwise just append it to the top or bottom. 
-    // Simplest robust approach: Append it to the transcript section.
-    
-    // If we just did the fallback append above:
-    if (!userPrompt.includes('{{TRANSCRIPT}}')) {
-       // It's already in the string we constructed above
-       const insertPoint = fullContent.indexOf('</transcript_content>') + 21;
-       fullContent = fullContent.slice(0, insertPoint) + contextBlock + fullContent.slice(insertPoint);
+    // Inject context near the transcript if placeholder is missing
+    const transcriptEndIndex = fullContent.indexOf('</transcript_content>');
+    if (transcriptEndIndex !== -1) {
+      const insertPoint = transcriptEndIndex + 21; // length of tag
+      fullContent = fullContent.slice(0, insertPoint) + "\n" + contextBlock + "\n" + fullContent.slice(insertPoint);
     } else {
-       // If the user used {{TRANSCRIPT}}, we assume they might not have used {{CONTEXT}}.
-       // We'll append context after the transcript replacement.
-       // This is a heuristic; technically it's safer to just add it at the very top or bottom, 
-       // but context is usually best near the source material.
-       fullContent = contextBlock + "\n" + fullContent;
+      fullContent = contextBlock + "\n\n" + fullContent;
     }
   }
 
   try {
+    // Using flash model for speed and cost effectiveness for text tasks
     const responseStream = await ai.models.generateContentStream({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-3-flash-preview', 
       contents: fullContent,
       config: {
         systemInstruction: systemPrompt,
@@ -80,6 +73,6 @@ ${fullContent}`;
     }
   } catch (error: any) {
     console.error("Gemini API Error:", error);
-    throw new Error(error.message || "Failed to generate document");
+    throw new Error(error.message || "Failed to generate document. Check API Key and Quota.");
   }
 };
