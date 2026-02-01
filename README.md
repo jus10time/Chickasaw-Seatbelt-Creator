@@ -1,5 +1,7 @@
 # Chickasaw Seatbelt Creator
 
+**Live App**: https://chickasaw-seatbelt-generator-978789278254.us-west1.run.app/
+
 An AI-powered content profile generator for Chickasaw Nation video content. Transforms video transcripts into structured metadata (titles, descriptions, tags, slugs) following specific series guidelines.
 
 ## Features
