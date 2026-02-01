@@ -33,6 +33,13 @@ const App: React.FC = () => {
     localStorage.setItem('userPrompt', userPrompt);
   }, [userPrompt]);
 
+  const handleResetDefaults = () => {
+    if (confirm('Are you sure you want to reset the AI configuration to the default Chickasaw Nation prompts? This will overwrite your current changes.')) {
+      setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
+      setUserPrompt(DEFAULT_USER_PROMPT);
+    }
+  };
+
   const handleProcess = useCallback(async () => {
     if (!transcript.trim()) {
       setError("Please provide a transcript before processing.");
@@ -102,6 +109,7 @@ const App: React.FC = () => {
                 userPrompt={userPrompt}
                 onSystemPromptChange={setSystemPrompt}
                 onUserPromptChange={setUserPrompt}
+                onResetDefaults={handleResetDefaults}
               />
             </section>
 

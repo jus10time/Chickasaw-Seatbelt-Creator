@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
-import { Settings, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { Settings, ChevronDown, ChevronUp, Info, RotateCcw } from 'lucide-react';
 
 interface PromptConfigProps {
   systemPrompt: string;
   userPrompt: string;
   onSystemPromptChange: (val: string) => void;
   onUserPromptChange: (val: string) => void;
+  onResetDefaults: () => void;
 }
 
 export const PromptConfig: React.FC<PromptConfigProps> = ({
   systemPrompt,
   userPrompt,
   onSystemPromptChange,
-  onUserPromptChange
+  onUserPromptChange,
+  onResetDefaults
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -31,6 +33,16 @@ export const PromptConfig: React.FC<PromptConfigProps> = ({
 
       {isOpen && (
         <div className="p-6 space-y-6">
+          <div className="flex justify-end">
+             <button 
+               onClick={onResetDefaults}
+               className="text-xs flex items-center gap-1 text-slate-400 hover:text-indigo-400 transition-colors"
+               title="Reset to default Chickasaw Nation prompts"
+             >
+               <RotateCcw className="w-3 h-3" />
+               Reset to Defaults
+             </button>
+          </div>
           <div>
             <div className="flex items-center justify-between mb-2">
                <label htmlFor="systemPrompt" className="block text-sm font-medium text-slate-300">

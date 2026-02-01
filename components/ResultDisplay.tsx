@@ -48,6 +48,75 @@ export const ResultDisplay: React.FC<ResultDisplayProps> = ({
     }
   }, [content, isProcessing]);
 
+  // RTF Generator
+  const handleDownloadRTF = () => {
+    if (!parsedData) return;
+
+    const escapeRTF = (text: string) => {
+        if (!text) return '';
+        // Escape special chars
+        let escaped = text.replace(/([{}\\])/g, '\\$1');
+        // Handle newlines
+        escaped = escaped.replace(/\n/g, '\\par ');
+        // Handle unicode
+        return escaped.replace(/[^\x00-\x7F]/g, c => `\\u${c.charCodeAt(0)}?`);
+    };
+
+    const htmlToRTF = (html: string) => {
+        if (!html) return '';
+        let rtf = html;
+        // Basic HTML tag conversion
+        rtf = rtf.replace(/<strong[^>]*>(.*?)<\/strong>/gi, '\\b $1\\b0 ');
+        rtf = rtf.replace(/<b[^>]*>(.*?)<\/b>/gi, '\\b $1\\b0 ');
+        rtf = rtf.replace(/<em[^>]*>(.*?)<\/em>/gi, '\\i $1\\i0 ');
+        rtf = rtf.replace(/<i[^>]*>(.*?)<\/i>/gi, '\\i $1\\i0 ');
+        // Paragraphs: Remove opening p, add double par for closing p
+        rtf = rtf.replace(/<p[^>]*>/gi, '');
+        rtf = rtf.replace(/<\/p>/gi, '\\par\\par ');
+        // Line breaks
+        rtf = rtf.replace(/<br\s*\/?>/gi, '\\line ');
+        // Strip any remaining tags
+        rtf = rtf.replace(/<[^>]+>/g, '');
+        // Decode common entities
+        rtf = rtf.replace(/&nbsp;/g, ' ')
+                 .replace(/&amp;/g, '&')
+                 .replace(/&lt;/g, '<')
+                 .replace(/&gt;/g, '>')
+                 .replace(/&quot;/g, '"');
+        
+        return escapeRTF(rtf); 
+    };
+
+    // Construct RTF Document
+    const rtfContent = `{\\rtf1\\ansi\\deff0
+{\\fonttbl{\\f0\\fswiss\\fcharset0 Helvetica;}{\\f1\\fswiss\\fcharset0 Courier New;}}
+{\\colortbl;\\red0\\green0\\blue0;\\red100\\green100\\blue100;\\red79\\green70\\blue229;}
+\\viewkind4\\uc1\\pard\\sa200\\sl276\\slmult1\\f0\\fs36\\b ${escapeRTF(parsedData.title || 'Untitled')}\\b0\\par
+\\fs24\\cf2 ${escapeRTF(parsedData.series || '')} - ${escapeRTF(parsedData.subhead || '')}\\cf0\\par
+\\fs20\\i ${escapeRTF(Array.isArray(parsedData.tags) ? parsedData.tags.join(', ') : parsedData.tags || '')}\\i0\\par
+\\par
+\\fs24\\b\\cf3 SUMMARY\\cf0\\b0\\par
+${escapeRTF(parsedData.summary || '')}\\par
+\\par
+\\b\\cf3 DESCRIPTION\\cf0\\b0\\par
+${htmlToRTF(parsedData.description_html || '')}\\par
+\\pard\\sa200\\sl276\\slmult1\\cf2\\fs20\\b METADATA\\b0\\par
+\\b Slug:\\b0  \\f1 ${escapeRTF(parsedData.slug || '')}\\f0\\par
+\\b Keywords:\\b0  ${escapeRTF(parsedData.keywords || '')}\\par
+\\b Thumbnail:\\b0  ${escapeRTF(parsedData.thumbnail_concept || '')}\\par
+}`;
+
+    const blob = new Blob([rtfContent], { type: 'application/rtf' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${parsedData.slug || 'content-profile'}.rtf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   if (!content && !isProcessing && !error) {
     return (
       <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-slate-500 border-2 border-dashed border-slate-800 rounded-xl bg-slate-900/50">
@@ -96,6 +165,7 @@ export const ResultDisplay: React.FC<ResultDisplayProps> = ({
             </span>
           )}
           <div className="h-4 w-px bg-slate-800 mx-1"></div>
+          
           <button
             onClick={onCopy}
             disabled={isProcessing || !content}
@@ -104,6 +174,21 @@ export const ResultDisplay: React.FC<ResultDisplayProps> = ({
           >
             <Copy className="w-4 h-4" />
           </button>
+
+          {/* New RTF Download Button */}
+          {parsedData && (
+             <button
+              onClick={handleDownloadRTF}
+              disabled={isProcessing}
+              className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition-colors shadow-lg shadow-indigo-500/20"
+              title="Download Formatted RTF Document"
+            >
+              <FileText className="w-4 h-4" />
+              Download Doc
+            </button>
+          )}
+
+          {/* Existing JSON Download */}
           <button
             onClick={onDownload}
             disabled={isProcessing || !content}

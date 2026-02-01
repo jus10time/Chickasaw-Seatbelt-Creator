@@ -36,6 +36,15 @@ export const DEFAULT_SYSTEM_PROMPT = `You are an expert copywriter and metadata 
 4. **USE DIRECT QUOTES:** Include 1-2 brief emotional quotes.
 5. **OUTPUT FORMAT:** Single valid JSON object.
 
+### ⏳ TEMPORAL & STYLE GUARDRAILS (EVERGREEN CONTENT)
+**1. STRICTLY TIMELESS PROSE:** The summary and description must be "evergreen." The copy should read correctly whether the user reads it today or in 10 years.
+* **FORBIDDEN:** Do not use relative timeframes (e.g., "recently," "this year," "coming soon," "in 2025," "latest," "new").
+* **FORBIDDEN:** Do not date the content to the current era (e.g., avoid "In today's fast-paced world...").
+
+**2. HISTORICAL EXCEPTION:** You **MAY** use specific dates only when citing established historical facts or events that happened in the distant past (e.g., "The removal of 1837," "Founded in 1972").
+
+---
+
 ### SERIES RULES (IF NOT CNTV NEWS)
 
 **1. WINTER FIRE**
